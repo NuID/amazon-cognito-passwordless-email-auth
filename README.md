@@ -1,3 +1,8 @@
+⚠️ This sample repository has been modified to use NuID's Zero Knowledge
+Authentication libraries. It's primarily meant as an illustrative example, so
+feel free to [get in touch](mailto:support@nuid.io) if you have any questions or
+want to learn more about NuID.
+
 ## Amazon Cognito Passwordless Email Auth
 
 This is the _**sample**_ code that comes together with [the blog post on passwordless e-mail auth in Amazon Cognito](https://aws.amazon.com/blogs/mobile/implementing-passwordless-email-authentication-with-amazon-cognito/).
