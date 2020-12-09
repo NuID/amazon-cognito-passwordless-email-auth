@@ -17,6 +17,7 @@ export class SignUpComponent {
 
   email = new FormControl('');
   fullName = new FormControl('');
+  password = new FormControl('');
 
   private busy_ = new BehaviorSubject(false);
   public busy = this.busy_.asObservable();
@@ -30,9 +31,13 @@ export class SignUpComponent {
     this.errorMessage_.next('');
     this.busy_.next(true);
     try {
-      await this.auth.signUp(this.email.value, this.fullName.value);
-      await this.auth.signIn(this.email.value);
-      this.router.navigate(['/enter-secret-code']);
+      await this.auth.signUp(this.email.value, this.fullName.value, this.password.value);
+      const loginSucceeded = await this.auth.logIn(this.email.value, this.password.value);
+      if (loginSucceeded) {
+        this.router.navigate(['/private']);
+      } else {
+        this.errorMessage_.next('Incorrect password.');
+      }
     } catch (err) {
       console.log(err);
       this.errorMessage_.next(err.message || err);
