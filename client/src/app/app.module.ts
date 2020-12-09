@@ -13,7 +13,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { SignInComponent } from './sign-in/sign-in.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { PrivateComponent } from './private/private.component';
-import { AnswerChallengeComponent } from './answer-challenge/answer-challenge.component';
 import { SignOutComponent } from './sign-out/sign-out.component';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -38,7 +37,6 @@ const MAT_MODULES = [
     SignInComponent,
     SignUpComponent,
     PrivateComponent,
-    AnswerChallengeComponent,
     SignOutComponent,
     NotFoundComponent
   ],
