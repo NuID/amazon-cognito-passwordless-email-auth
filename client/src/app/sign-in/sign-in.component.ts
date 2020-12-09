@@ -16,6 +16,7 @@ import { BehaviorSubject } from 'rxjs';
 export class SignInComponent {
 
   public email = new FormControl('');
+  public password = new FormControl('');
 
   private busy_ = new BehaviorSubject(false);
   public busy = this.busy_.asObservable();
@@ -29,8 +30,12 @@ export class SignInComponent {
     this.busy_.next(true);
     this.errorMessage_.next('');
     try {
-      await this.auth.signIn(this.email.value);
-      this.router.navigate(['/enter-secret-code']);
+      const loginSucceeded = await this.auth.logIn(this.email.value, this.password.value);
+      if (loginSucceeded) {
+        this.router.navigate(['/private']);
+      } else {
+        this.errorMessage_.next('Incorrect password.');
+      }
     } catch (err) {
       this.errorMessage_.next(err.message || err);
     } finally {

@@ -8,7 +8,7 @@
   <mat-card-header>
     <mat-icon mat-card-avatar>lock</mat-icon>
     <mat-card-title>Please Sign In</mat-card-title>
-    <mat-card-subtitle>Enter your e-mail address and we'll send you a one-time secret sign-in code</mat-card-subtitle>
+    <mat-card-subtitle>Enter your e-mail address and password and we'll verify your password in zero knowledge</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -17,6 +17,9 @@
         <input matInput placeholder="E-mail" [formControl]="email" type="email" email name="email"
           autocomplete="username email" />
       </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Password" [formControl]="password" type="password" name="password" />
+      </mat-form-field>
     </form>
   </mat-card-content>
 
@@ -24,7 +27,7 @@
     <div fxFlex></div>
     <button mat-stroked-button color="primary" (click)="signIn()" [disabled]="(busy | async)">
       <div fxFlex></div>
-      <div *ngIf="!(busy | async)">SEND SIGN-IN CODE</div>
+      <div *ngIf="!(busy | async)">SIGN IN</div>
       <mat-spinner *ngIf="busy | async" [diameter]="35"></mat-spinner>
       <div fxFlex></div>
     </button>
