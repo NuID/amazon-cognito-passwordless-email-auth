@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd ./lambda-triggers/create-auth-challenge && npm i && cd -",
+    "postinstall": "cd ./lambda-triggers/create-auth-challenge && npm i && cd ../pre-sign-up && npm i && cd ../verify-auth-challenge-response && npm i && cd -",
     "package": "tsc && sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket ${S3_BUCKET_NAME}",
     "deploy": "sam deploy --template-file packaged.yaml --capabilities CAPABILITY_IAM --stack-name ${STACK_NAME} --parameter-overrides SESFromAddress=${SES_FROM_ADDRESS} UserPoolName=${USER_POOL_NAME}",
     "check-env": "if [ -e ${S3_BUCKET_NAME} ] || [ -e ${USER_POOL_NAME} ] || [ -e ${STACK_NAME} ] || [ -e ${SES_FROM_ADDRESS} ]; then exit 1; fi",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@nuid/zk": "^0.1.1",
     "@types/aws-lambda": "^8.10.39",
     "@types/node": "^10.17.9",
     "aws-sdk": "^2.589.0",

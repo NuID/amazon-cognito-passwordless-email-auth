@@ -122,6 +122,11 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: true
+        - Name: credential
+          AttributeDataType: String
+          Mutable: true
+          StringAttributeConstraints:
+            MaxLength: 2048
       Policies:
         PasswordPolicy:
           MinimumLength: 8
