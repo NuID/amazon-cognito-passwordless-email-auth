@@ -2,66 +2,45 @@
 // SPDX-License-Identifier: MIT-0
 
 import { CognitoUserPoolTriggerHandler } from 'aws-lambda';
-import { randomDigits } from 'crypto-secure-random-digit';
-import { SES } from 'aws-sdk';
-
-const ses = new SES();
+import Zk from '@nuid/zk';
 
 export const handler: CognitoUserPoolTriggerHandler = async event => {
+    const credential = JSON.parse(event.request.userAttributes['custom:credential']);
+    const challenge = Zk.defaultChallengeFromCredential(credential);
+    const json = JSON.stringify(challenge);
 
-    let secretLoginCode: string;
-    if (!event.request.session || !event.request.session.length) {
-
-        // This is a new auth session
-        // Generate a new secret login code and mail it to the user
-        secretLoginCode = randomDigits(6).join('');
-        await sendEmail(event.request.userAttributes.email, secretLoginCode);
-
-    } else {
-
-        // There's an existing session. Don't generate new digits but
-        // re-use the code from the current session. This allows the user to
-        // make a mistake when keying in the code and to then retry, rather
-        // then needing to e-mail the user an all new code again.    
-        const previousChallenge = event.request.session.slice(-1)[0];
-        secretLoginCode = previousChallenge.challengeMetadata!.match(/CODE-(\d*)/)![1];
-    }
+    // The `challenge` parameter is non-sensitive and specific to a single
+    // authentication attempt (i.e. single use). The same challenge is issued as
+    // both as a public and private challenge parameter. The client will use it
+    // to generate a similarly single-use zero knowledge proof that is specific
+    // to the challenge generated here. It's also issued as a private challenge
+    // parameter so that we can statelessly retrieve it in
+    // `verify-auth-challenge-response` to verify that the proof was generated
+    // for the challenge generated here, and therefore relevant to the ongoing
+    // authentication attempt.
+    //
+    // NOTE: `privateChallengeParameters` and similar trusted session data may
+    // also be used to further constrain the context of the authentication
+    // attempt. E.g. the challenge could be bound to a given point in time by
+    // adding a timestamp to `privateChallengeParameters`, which
+    // `verify-auth-challenge-response` could use to additionally verify that a
+    // proof is received within a specified period of challenge generation.
+    //
+    // NOTE: In the absence of trusted session data such as
+    // `privateChallengeParameters`, signature-based integrity validation may
+    // serve a similar purpose (e.g. JWT).
 
     // This is sent back to the client app
-    event.response.publicChallengeParameters = { email: event.request.userAttributes.email };
+    event.response.publicChallengeParameters = {
+      email: event.request.userAttributes.email,
+      challenge: json
+    };
 
-    // Add the secret login code to the private challenge parameters
-    // so it can be verified by the "Verify Auth Challenge Response" trigger
-    event.response.privateChallengeParameters = { secretLoginCode };
-
-    // Add the secret login code to the session so it is available
-    // in a next invocation of the "Create Auth Challenge" trigger
-    event.response.challengeMetadata = `CODE-${secretLoginCode}`;
+    // This is trusted session data that can be retrieved in
+    // `verify-auth-challenge-response`
+    event.response.privateChallengeParameters = {
+      challenge: json
+    };
 
     return event;
 };
-
-async function sendEmail(emailAddress: string, secretLoginCode: string) {
-    const params: SES.SendEmailRequest = {
-        Destination: { ToAddresses: [emailAddress] },
-        Message: {
-            Body: {
-                Html: {
-                    Charset: 'UTF-8',
-                    Data: `<html><body><p>This is your secret login code:</p>
-                           <h3>${secretLoginCode}</h3></body></html>`
-                },
-                Text: {
-                    Charset: 'UTF-8',
-                    Data: `Your secret login code: ${secretLoginCode}`
-                }
-            },
-            Subject: {
-                Charset: 'UTF-8',
-                Data: 'Your secret login code'
-            }
-        },
-        Source: process.env.SES_FROM_ADDRESS!
-    };
-    await ses.sendEmail(params).promise();
-}

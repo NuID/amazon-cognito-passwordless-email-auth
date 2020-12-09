@@ -1,8 +1,8 @@
 {
-  "name": "create-auth-challenge",
+  "name": "pre-sign-up",
   "version": "1.0.0",
   "description": "",
-  "main": "create-auth-challenge.js",
+  "main": "pre-sign-up.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
